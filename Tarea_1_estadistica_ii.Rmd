@@ -13,6 +13,8 @@ output:
     toc: TRUE
     toc_depth: 2
 ---
+
+```{=html}
 <STYLE TYPE="text/css">
 <!--
   .r {
@@ -44,6 +46,7 @@ output:
   }
 --->
 </STYLE>
+```
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -66,8 +69,7 @@ BD <- read_csv2("BaseSalarios.csv")[-6]
 BD <- BD %>% rename("Salario" = "U. Salario", "Cuotas" = "Coutas" )
 ```
 
-Seguidamente, se realiza el resumen de los datos según el sexo. Se calcula la media, máximo, mínimo y varianza
-de las cuotas y salarios.
+Seguidamente, se realiza el resumen de los datos según el sexo. Se calcula la media, máximo, mínimo y varianza de las cuotas y salarios.
 
 ```{r, warning=FALSE, message=FALSE}
 resumen<- BD %>% group_by(Sexo) %>% summarise_at(vars(Cuotas,Salario), 
