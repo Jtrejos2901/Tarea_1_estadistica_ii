@@ -1,15 +1,114 @@
 ---
-title: "Tarea 1 Estadística Actuarial II"
-author: "Jose Pablo Trejos Conejo"
-date: "2024-01-11"
-output: html_document
----
+title: Tarea 1
 
+author:
+  - "Maria Carolina Navarro Monge C05513"
+  - "Tábata Picado Carmona C05961"
+  - "Jose Pablo Trejos Conejo C07862"
+
+output:
+  rmdformats::robobook:
+        code_folding: show
+  html_document:
+    toc: TRUE
+    toc_depth: 2
+---
+<STYLE TYPE="text/css">
+<!--
+  .r {
+    border: none;
+    border-radius: 0px;
+  }
+  
+  #TOC {
+    font-size: 14pt;
+    color: #ffa07a;
+    margin: 4rem 0 4rem;
+  }
+  
+  a:hover {
+    color: #ffa07a;
+  }
+  
+  a {
+    color: #393d42;
+  }
+  th{
+    font-weight: bold;
+    background-color: #ffa07a;
+  }
+  table { 
+    font-size: 8pt;
+    font-family: Arial; 
+    border-collapse: collapse;
+  }
+--->
+</STYLE>
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Tarea 1
-## Análisis descriptivo de las variables s Cuotas y Salarios con respecto a la 
-variable Sexo.
+# Parte I
 
+**1.Análisis descriptivo de las variables Cuotas y Salarios con respecto a la variable Sexo.**
+
+Primeramente, se cargan las librerías y la base de datos.
+
+```{r, warning=FALSE, message=FALSE}
+library(readr)
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+library(DT)
+
+BD <- read_csv2("BaseSalarios.csv")[-6]
+BD <- BD %>% rename("Salario" = "U. Salario", "Cuotas" = "Coutas" )
+```
+
+Seguidamente, se realiza el resumen de los datos según el sexo. Se calcula la media, máximo, mínimo y varianza
+de las cuotas y salarios.
+
+```{r, warning=FALSE, message=FALSE}
+resumen<- BD %>% group_by(Sexo) %>% summarise_at(vars(Cuotas,Salario), 
+                                                          list(Mínimo = min,
+                                                          Media = mean,
+                                                          Máximo = max,
+                                                          Varianza = var))
+
+knitr::kable(resumen, format = "markdown")
+
+```
+
+**2. Gráfico boxplot de los salarios según sexo.**
+
+```{r, warning=FALSE, message=FALSE}
+#Gráfico boxplot
+boxplot_salarios<- ggplot(BD, aes(x = factor(Sexo, labels = c("Hombre", "Mujer")), y = Salario, fill= factor(Sexo, labels = c("Hombre", "Mujer")))) + 
+  geom_boxplot() + geom_boxplot() +
+  labs(title = "Boxplot de los salarios por sexo",x = "Sexo", y = "Salario", 
+       fill = "Sexo") + 
+  scale_y_continuous(labels = scales::comma_format()) +
+  theme_minimal()
+
+print(boxplot_salarios)
+
+```
+
+**3.¿Qué puede concluir con respecto a los salarios y sexo? ¿Existe alguna diferencia entre los sexos a nivel salarial?**
+
+De acuerdo con el gráfico de caja de bigotes, se muestra que los hombres presentan un salario central superior al de las mujeres. También, para el caso de las mujeres, la mediana está más cercana a la parte superior de la caja lo que indica un sesgo a la izquierda, lo que significa que la media es inferior a la mediana. En cuanto a los hombres, prácticamente no se muestra sesgo, ya que, la mediana se muestra muy centrada, lo que indica una mayor simetría. Además, es posible ver que el salario máximo de los hombres es significativamente superior al de las mujeres estando por encima de los diez millones de colones, en cambio, el mayor salario para una mujer es de 7,290,150. Para los hombres, la varianza se muestra casi el doble que el de las mujeres, lo cual, se puede explicar mediante lo descrito anteriormente. Esto indica que existen diferencias según el sexo en cuanto a salarios.
+
+**4.Compare su conclusión con una prueba de hipótesis sobre las medias de las categorías de sexo.**
+
+Se aplica la prueba t.test para comparar las medias de los salarios de los hombres y mujeres con el fin de encontrar diferencias o no entre los salarios y corroborar la conclusión del inciso anterior. Para la aplicación de la prueba se considera como hipótesis nula que la diferencia entre las medias es de cero. Además, se emplea un nivel de significancia del 5%. Los resultados obtenidos son los siguientes:
+
+```{r}
+salarios_hombres <-split(BD, BD$Sexo)[[1]][[5]]
+salarios_mujeres <- split(BD, BD$Sexo)[[2]][[5]]
+
+t.test(salarios_hombres, salarios_mujeres)
+
+```
+
+Como se indica, el p-valor de la prueba es menor a 2.2e-16, esto implica que la hipótesis nula es rechazada. Por ende, se acepta con un nivel de confianza del 95% que existe diferencias entre los salarios promedios de hombres y mujeres. Por tanto, se obtiene la misma conclusión que el inciso anterior.
