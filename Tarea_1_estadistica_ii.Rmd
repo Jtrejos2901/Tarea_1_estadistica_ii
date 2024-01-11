@@ -1,0 +1,15 @@
+---
+title: "Tarea 1 Estadística Actuarial II"
+author: "Jose Pablo Trejos Conejo"
+date: "2024-01-11"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Tarea 1
+## Análisis descriptivo de las variables s Cuotas y Salarios con respecto a la 
+variable Sexo.
+
