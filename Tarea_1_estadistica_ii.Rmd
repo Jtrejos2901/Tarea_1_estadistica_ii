@@ -114,3 +114,9 @@ t.test(salarios_hombres, salarios_mujeres)
 ```
 
 Como se indica, el p-valor de la prueba es menor a 2.2e-16, esto implica que la hipótesis nula es rechazada. Por ende, se acepta con un nivel de confianza del 95% que existe diferencias entre los salarios promedios de hombres y mujeres. Por tanto, se obtiene la misma conclusión que el inciso anterior.
+
+# Parte III
+
+**1. Explique en que consiste el criterio de información de Akaike (AIC) y cuál es el criterio de selección entre dos modelos.**
+
+El criterio de información de Akaike (AIC) es una medida de la calidad de un modelo dentro de un conjunto de modelos. Brinda información sobre la complejidad de un modelo y su exactitud, pues describe el sesgo y la varianza presentes en el modelo estadístico en estudio. Con el AIC, se permite determinar cuál modelo es el más apropiado entre los modelos estadísticos propuestos. Como criterio de selección, se considera como mejor modelo aquel cuyo valor de AIC es menor. Se debe tener presente que el AIC no es prueba de hipótesis, por lo que no indica si un modelo es de calidad, es decir, todos los modelos pueden ser erróneos y el AIC solo indica entre ellos cúal es el que mejor se ajusta.
