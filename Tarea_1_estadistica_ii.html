@@ -1593,6 +1593,7 @@ margin-left: 0 !important;
         <nav role="navigation" id="toc">
           <ul>
           <li><a href="#parte-i" id="toc-parte-i">Parte I</a></li>
+          <li><a href="#parte-iii" id="toc-parte-iii">Parte III</a></li>
           </ul>
         </nav>
         <ul class="authors">
@@ -1672,9 +1673,12 @@ respecto a la variable Sexo.</strong></p>
 <span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
 <span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="fu">library</span>(plotly)</span>
 <span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="fu">library</span>(DT)</span>
-<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>BD <span class="ot">&lt;-</span> <span class="fu">read_csv2</span>(<span class="st">&quot;BaseSalarios.csv&quot;</span>)[<span class="sc">-</span><span class="dv">6</span>]</span>
-<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>BD <span class="ot">&lt;-</span> BD <span class="sc">%&gt;%</span> <span class="fu">rename</span>(<span class="st">&quot;Salario&quot;</span> <span class="ot">=</span> <span class="st">&quot;U. Salario&quot;</span>, <span class="st">&quot;Cuotas&quot;</span> <span class="ot">=</span> <span class="st">&quot;Coutas&quot;</span> )</span></code></pre></div>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="fu">library</span>(univariateML)</span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="fu">library</span>(rriskDistributions) <span class="co">#encuentra que distribuciónn de probabilidades es la</span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>                            <span class="co">#que ajusta mejor con una colección de datos.</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>BD <span class="ot">&lt;-</span> <span class="fu">read_csv2</span>(<span class="st">&quot;BaseSalarios.csv&quot;</span>)[<span class="sc">-</span><span class="dv">6</span>]</span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>BD <span class="ot">&lt;-</span> BD <span class="sc">%&gt;%</span> <span class="fu">rename</span>(<span class="st">&quot;Salario&quot;</span> <span class="ot">=</span> <span class="st">&quot;U. Salario&quot;</span>, <span class="st">&quot;Cuotas&quot;</span> <span class="ot">=</span> <span class="st">&quot;Coutas&quot;</span> )</span></code></pre></div>
 <p>Seguidamente, se realiza el resumen de los datos según el sexo. Se
 calcula la media, máximo, mínimo y varianza de las cuotas y
 salarios.</p>
@@ -1790,6 +1794,40 @@ implica que la hipótesis nula es rechazada. Por ende, se acepta con un
 nivel de confianza del 95% que existe diferencias entre los salarios
 promedios de hombres y mujeres. Por tanto, se obtiene la misma
 conclusión que el inciso anterior.</p>
+</div>
+<div id="parte-iii" class="section level1">
+<h1>Parte III</h1>
+<p><strong>1. Explique en que consiste el criterio de información de
+Akaike (AIC) y cuál es el criterio de selección entre dos
+modelos.</strong></p>
+<p>El criterio de información de Akaike (AIC) es una medida de la
+calidad de un modelo dentro de un conjunto de modelos. Brinda
+información sobre la complejidad de un modelo y su exactitud, pues
+describe el sesgo y la varianza presentes en el modelo estadístico en
+estudio. Con el AIC, se permite determinar cuál modelo es el más
+apropiado entre los modelos estadísticos propuestos. Como criterio de
+selección, se considera como mejor modelo aquel cuyo valor de AIC es
+menor. Se debe tener presente que el AIC no es prueba de hipótesis, por
+lo que no indica si un modelo es de calidad, es decir, todos los modelos
+pueden ser erróneos y el AIC solo indica entre ellos cúal es el que
+mejor se ajusta.</p>
+<p><strong>2.Análisis AIC de los salarios sin filtrar por Sexo para
+determinar que densidad paramétrica es la que más se le aproxima.
+</strong></p>
+<p>A continuación, se presenta la implementación del criterio AIC
+mediante la función model_select del paquete univariateML</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co">#-----Análisis AIC-----|</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#Comparación densidades paramétricas por el criterio AIC</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>salarios <span class="ot">&lt;-</span> BD<span class="sc">$</span>Salario</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="fu">model_select</span>(salarios, <span class="at">models =</span> univariateML_models, <span class="at">criterion =</span> <span class="st">&quot;aic&quot;</span>,</span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>             <span class="at">na.rm =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<pre><code>## Maximum likelihood estimates for the Skew Student-t model 
+##      mean         sd         nu         xi  
+## 1.064e+06  6.196e+05  4.297e+01  2.402e+00</code></pre>
+<p>De acuerdo al resultado proporcionado, la densidad paramétrica que
+más se ajusta a los datos de los salarios es la t-student.</p>
 </div>
 
    

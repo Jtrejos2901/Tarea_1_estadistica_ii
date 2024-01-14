@@ -64,6 +64,9 @@ library(dplyr)
 library(ggplot2)
 library(plotly)
 library(DT)
+library(univariateML)
+library(rriskDistributions) #encuentra que distribuciónn de probabilidades es la
+                            #que ajusta mejor con una colección de datos.
 
 BD <- read_csv2("BaseSalarios.csv")[-6]
 BD <- BD %>% rename("Salario" = "U. Salario", "Cuotas" = "Coutas" )
@@ -120,3 +123,30 @@ Como se indica, el p-valor de la prueba es menor a 2.2e-16, esto implica que la 
 **1. Explique en que consiste el criterio de información de Akaike (AIC) y cuál es el criterio de selección entre dos modelos.**
 
 El criterio de información de Akaike (AIC) es una medida de la calidad de un modelo dentro de un conjunto de modelos. Brinda información sobre la complejidad de un modelo y su exactitud, pues describe el sesgo y la varianza presentes en el modelo estadístico en estudio. Con el AIC, se permite determinar cuál modelo es el más apropiado entre los modelos estadísticos propuestos. Como criterio de selección, se considera como mejor modelo aquel cuyo valor de AIC es menor. Se debe tener presente que el AIC no es prueba de hipótesis, por lo que no indica si un modelo es de calidad, es decir, todos los modelos pueden ser erróneos y el AIC solo indica entre ellos cúal es el que mejor se ajusta.
+
+**2. Análisis AIC de los salarios sin filtrar por Sexo para determinar que densidad paramétrica es la que más se le aproxima. **
+
+A continuación, se presenta la implementación del criterio AIC mediante la función model_select del paquete univariateML 
+
+```{r}
+#-----Análisis AIC-----|
+
+#Comparación densidades paramétricas por el criterio AIC
+
+salarios <- BD$Salario
+model_select(salarios, models = univariateML_models, criterion = "aic",
+             na.rm = FALSE)
+```
+
+De acuerdo al resultado proporcionado, la densidad paramétrica que más se ajusta a los datos
+de los salarios es la t-student.
+
+**3. Utilizando el paquete rriskDistributions, y la función fit.cont, bajo el criterio AIC, replique el punto 2 de esta parte.**
+
+Empleando la función sugerida se obtiene lo siguiente:
+
+```{r}
+fit.cont(salarios)
+```
+Usando el criterio AIC la densidad Weibull es el que presenta menor valor de esta medida, por ende, se toma como la mejor distribución para los salarios.
+
