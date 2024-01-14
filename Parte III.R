@@ -38,6 +38,13 @@ fit.cont(salarios)
 #Comparación gráfica entre la distribución weibull y la t-student
 
 fw <- fitdist(salarios, "weibull")
-plot(fw)
+ft <- fitdist(salarios, "t.scaled", start=list(df=3,mean=mean(salarios),sd= sd(salarios)))
 
-ft <-
+par(mfrow = c(2,2))
+leyenda <-c("Weibull", "T-Student")
+
+denscomp(list(fw, ft), legendtext = leyenda)
+qqcomp(list(fw, ft), legendtext = leyenda)
+cdfcomp(list(fw, ft), legendtext = leyenda)
+ppcomp(list(fw, ft), legendtext = leyenda)
+
