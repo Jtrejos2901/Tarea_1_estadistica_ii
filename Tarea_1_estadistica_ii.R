@@ -3,6 +3,7 @@ library(tidyverse)
 library(dplyr)
 library(ggplot2)
 library(plotly)
+library(univariateML)
 
 BD <- read_csv2("BaseSalarios.csv")[-6]
 BD <- BD %>% rename("Salario" = "U. Salario", "Cuotas" = "Coutas" )
