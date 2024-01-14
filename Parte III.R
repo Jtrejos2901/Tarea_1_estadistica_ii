@@ -24,8 +24,12 @@ densidad_triangular <- density(salarios, kernel = "triangular")
 #Comparación densidades paramétricas por el criterio AIC
 
 model_select(salarios, models = univariateML_models, criterion = "aic",
-             na.rm = FALSE) 
+             na.rm = FALSE)
+
 #La densidad que más se aproxima es la t-student
+
+fit.cont(salarios)
+# La densidad con menor AIC es Weibull
 
 
 
