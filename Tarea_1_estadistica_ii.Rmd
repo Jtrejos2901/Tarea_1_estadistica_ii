@@ -150,3 +150,7 @@ fit.cont(salarios)
 ```
 Usando el criterio AIC la densidad Weibull es el que presenta menor valor de esta medida, por ende, se toma como la mejor distribución para los salarios.
 
+
+**4.Comente y compare los resultados de los puntos 2 y 3, seleccione una distribución**
+
+Los resultados obtenidos en los puntos 2 y 3 son distintos, con el primer método se obtuvo que la densidad que mejor se aproxima es la t-Student, sin embargo, con la segunda forma se tiene que la mejor es la densidad de Weibull.
