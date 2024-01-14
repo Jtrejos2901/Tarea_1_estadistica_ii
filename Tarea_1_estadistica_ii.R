@@ -7,6 +7,7 @@ library(univariateML)
 library(rriskDistributions) #encuentra que distribuciónn de probabilidades es la
                             #que ajusta mejor con una colección de datos.
 library(fitdistrplus)
+library(metRology)
 
 BD <- read_csv2("BaseSalarios.csv")[-6]
 BD <- BD %>% rename("Salario" = "U. Salario", "Cuotas" = "Coutas" )
