@@ -28,8 +28,16 @@ model_select(salarios, models = univariateML_models, criterion = "aic",
 
 #La densidad que más se aproxima es la t-student
 
+#Análisis con la función fit.cont
+
 fit.cont(salarios)
 # La densidad con menor AIC es Weibull
 
+#----Elegir distribución---|
 
+#Comparación gráfica entre la distribución weibull y la t-student
 
+fw <- fitdist(salarios, "weibull")
+plot(fw)
+
+ft <-
