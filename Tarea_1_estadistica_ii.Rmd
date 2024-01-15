@@ -67,6 +67,9 @@ library(DT)
 library(univariateML)
 library(rriskDistributions) #encuentra que distribuciónn de probabilidades es la
                             #que ajusta mejor con una colección de datos.
+                            #que ajusta mejor con una colección de datos.
+library(fitdistrplus)
+library(metRology)
 
 BD <- read_csv2("BaseSalarios.csv")[-6]
 BD <- BD %>% rename("Salario" = "U. Salario", "Cuotas" = "Coutas" )
@@ -138,19 +141,55 @@ model_select(salarios, models = univariateML_models, criterion = "aic",
              na.rm = FALSE)
 ```
 
-De acuerdo al resultado proporcionado, la densidad paramétrica que más se ajusta a los datos
-de los salarios es la t-student.
+De acuerdo al resultado proporcionado, la densidad paramétrica que más se ajusta a los datos de los salarios es la t-student.
 
 **3. Utilizando el paquete rriskDistributions, y la función fit.cont, bajo el criterio AIC, replique el punto 2 de esta parte.**
 
 Empleando la función sugerida se obtiene lo siguiente:
 
 ```{r}
-fit.cont(salarios)
+#fit.cont(salarios)
 ```
 Usando el criterio AIC la densidad Weibull es el que presenta menor valor de esta medida, por ende, se toma como la mejor distribución para los salarios.
 
 
 **4.Comente y compare los resultados de los puntos 2 y 3, seleccione una distribución**
 
-Los resultados obtenidos en los puntos 2 y 3 son distintos, con el primer método se obtuvo que la densidad que mejor se aproxima es la t-Student, sin embargo, con la segunda forma se tiene que la mejor es la densidad de Weibull.
+Los resultados obtenidos en los puntos 2 y 3 son distintos, con el primer método se obtuvo que la densidad que mejor se aproxima es la t-Student. Sin embargo, con la segunda forma se tiene que la mejor es la densidad de Weibull. Para determinar cúal
+de estas distribuciones se ajusta mejor, se procede a analizar los siguientes gráficos comparativos:
+
+```{r}
+#----Elegir distribución---|
+
+#Comparación gráfica entre la distribución weibull y la t-student
+
+fw <- fitdist(salarios, "weibull")
+ft <- fitdist(salarios, "t.scaled", start=list(df=3,mean=mean(salarios),sd= sd(salarios)))
+
+par(mfrow = c(2,2))
+leyenda <-c("Weibull", "T-Student")
+
+denscomp(list(fw, ft), legendtext = leyenda)
+qqcomp(list(fw, ft), legendtext = leyenda)
+cdfcomp(list(fw, ft), legendtext = leyenda)
+ppcomp(list(fw, ft), legendtext = leyenda)
+```
+
+A partir del gráfico del histograma con las densidades teóricas, es posible observar
+que la densidad representada por la línea roja es la que mejor se ajusta al histograma de los datos de los salarios. Entonces, para este caso, la distribución Weibull es la que mejor se aproxima.
+
+Con el Q-Q plot se permiten ver las diferencias entre la distribución teórica de
+los datos y la empírica. La distribución t-student y weibull se muestran similarmente ajustados aproximadamente entre los cuántiles teóricos 0 y 2e+06. Pero, la distribución t-student, representado por el gráfico verde, se encuentra más alejado de la línea negra al inicio y al final de esta. Por ende, la distribución Weibull se ajusta mejor.
+
+Para el gráfico de la distribución acumulada teórica y la empírica, las diferencias en los ajustes entre ambas distribuciones es menos evidente. Lo mismo para el p-p plot, por lo que, a partir de estos gráficos no se puede deducir cuál es el mejor.
+
+Por tanto, si consideramos los primeros dos criterios, la distribución Weibull 
+se ajusta mejor a los datos de los salarios en estudio. 
+
+También, la función fitdist brinda información sobre la medida AIC:
+```{r}
+print(summary(fw))
+print(summary(ft))
+```
+
+DOnde Wiebull presenta el menor valor AIC. Con lo cual se confirma que la distribución Wiebull es el que mejor se ajusta.
