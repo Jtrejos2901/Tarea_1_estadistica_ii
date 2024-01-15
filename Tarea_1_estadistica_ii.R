@@ -8,7 +8,7 @@ library(rriskDistributions) #encuentra que distribuciónn de probabilidades es l
                             #que ajusta mejor con una colección de datos.
 library(fitdistrplus)
 library(metRology)
-
+library(boot)
 BD <- read_csv2("BaseSalarios.csv")[-6]
 BD <- BD %>% rename("Salario" = "U. Salario", "Cuotas" = "Coutas" )
 

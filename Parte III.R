@@ -49,3 +49,38 @@ qqcomp(list(fw, ft), legendtext = leyenda)
 cdfcomp(list(fw, ft), legendtext = leyenda)
 ppcomp(list(fw, ft), legendtext = leyenda)
 
+#-------Intervalos de confianza bootstrap----|
+
+set.seed(123)  # Establece semilla para reproducibilidad
+
+
+# Definir el modelo paramétrico para obtener media y desviación estándar
+modelo_weibull <- function(BD, indices) {
+  muestra_bootstrap <- BD$Salario[indices]
+  
+  # Ajusta la distribución Weibull a la muestra bootstrap usando fitdist
+  ajuste_bootstrap <- fitdist(muestra_bootstrap, "weibull")
+  
+  # Obtiene los parámetros del ajuste
+  parametros <- coef(ajuste_bootstrap)
+  
+  # Calcula media y desviación estándar de la muestra bootstrap
+  media_bootstrap <- parametros[2] * gamma(1 + 1/parametros[1])
+  desviacion_bootstrap <- sqrt(parametros[2]^2 * (gamma(1 + 2/parametros[1]) - (gamma(1 + 1/parametros[1]))^2))
+  
+  return(c(media_bootstrap, desviacion_bootstrap))
+}
+
+# Número de repeticiones bootstrap
+n_repeticiones <- 1000
+
+# Realiza el bootstrap paramétrico para media y desviación estándar
+resultados_bootstrap_parametrico <- boot(BD, modelo_weibull, R = n_repeticiones)
+
+# Calcula intervalo de confianza para la media y la desviación estándar (por ejemplo, al 95%)
+intervalo_confianza_media <- boot.ci(resultados_bootstrap_parametrico, type = "perc", index = 1)$percent
+intervalo_confianza_desviacion <- boot.ci(resultados_bootstrap_parametrico, type = "perc", index = 2)$percent
+
+cat("Intervalo de confianza para la media:", intervalo_confianza_media, "\n")
+cat("Intervalo de confianza para la desviación estándar:", intervalo_confianza_desviacion, "\n")
+

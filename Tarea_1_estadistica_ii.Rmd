@@ -192,4 +192,8 @@ print(summary(fw))
 print(summary(ft))
 ```
 
-DOnde Wiebull presenta el menor valor AIC. Con lo cual se confirma que la distribución Wiebull es el que mejor se ajusta.
+Donde Weibull presenta el menor valor AIC. Con lo cual, se confirma que la distribución Weibull es el que mejor se ajusta.
+
+
+**5.Intervalo de confianza para la media y la desviación estándar usando la función bootstrapml**
+
