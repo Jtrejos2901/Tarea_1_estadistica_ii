@@ -2022,6 +2022,21 @@ AIC:</p>
 que la distribución Weibull es el que mejor se ajusta.</p>
 <p><strong>5.Intervalo de confianza para la media y la desviación
 estándar usando la función bootstrapml</strong></p>
+<p>Para obtener los intervalos de confianza se ejecuta el siguiente
+código:</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" tabindex="-1"></a>densidad_salario <span class="ot">&lt;-</span> <span class="fu">mlweibull</span>(salarios)</span>
+<span id="cb32-2"><a href="#cb32-2" tabindex="-1"></a></span>
+<span id="cb32-3"><a href="#cb32-3" tabindex="-1"></a><span class="co">#intervalo confianza media</span></span>
+<span id="cb32-4"><a href="#cb32-4" tabindex="-1"></a><span class="fu">bootstrapml</span>(densidad_salario, <span class="at">map =</span> <span class="cf">function</span>(x) x[<span class="dv">2</span>]<span class="sc">*</span><span class="fu">gamma</span>(<span class="dv">1</span><span class="sc">+</span>(<span class="dv">1</span><span class="sc">/</span>x[<span class="dv">1</span>])))</span></code></pre></div>
+<pre><code>##    2.5%   97.5% 
+## 1077248 1084500</code></pre>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" tabindex="-1"></a><span class="co">#intervalo confianza desviación estándar</span></span>
+<span id="cb34-2"><a href="#cb34-2" tabindex="-1"></a><span class="fu">bootstrapml</span>(densidad_salario, <span class="at">map =</span> <span class="cf">function</span>(x) <span class="fu">sqrt</span>(x[<span class="dv">2</span>]<span class="sc">^</span><span class="dv">2</span><span class="sc">*</span>(<span class="fu">gamma</span>(<span class="dv">1</span><span class="sc">+</span><span class="dv">2</span><span class="sc">/</span>x[<span class="dv">1</span>])<span class="sc">-</span>(<span class="fu">gamma</span>(<span class="dv">1</span><span class="sc">+</span><span class="dv">1</span><span class="sc">/</span>x[<span class="dv">1</span>]))<span class="sc">^</span><span class="dv">2</span>)))</span></code></pre></div>
+<pre><code>##     2.5%    97.5% 
+## 592156.9 597418.8</code></pre>
+<p>Del cual, se obtiene que el intervalo de confianza al 95% para la
+media es [1077392, 1084455] y para la desviación estándar es [592319.0,
+597556.4].</p>
 </div>
 
    
