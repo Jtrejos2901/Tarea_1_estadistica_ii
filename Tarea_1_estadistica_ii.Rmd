@@ -131,9 +131,9 @@ Antes de realizar el histograma se deciden eliminar los outliers más distantes 
 BD <- BD[BD$Salario <= 10000000, ]
 ```
 
-Después de tener la base de datos adecuada, se relaiza el histograma de los salarios. 
+Después de tener la base de datos adecuada, se realiza el histograma de los salarios. 
 
-```{r}
+```{r,  warning=FALSE, message=FALSE}
 #Histograma de los salarios 
 hist_salarios <- ggplot(BD, aes(x = Salario)) +
   geom_histogram(fill = "lightblue", color = "black", alpha = 0.7) +
@@ -155,7 +155,7 @@ print(hist_salarios)
 
 Para mayor facilidad se decidió hacer una función que creara cada gráfico por medio de la función predetermida density. Además, se ajustan algunos detalles del gráfico para que sea más legible.
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 Kernels <- c("biweight", "gaussian", "epanechnikov", "cosine", "rectangular", "triangular")
 
 densidades <- lapply(Kernels, function(kernel) {
@@ -177,37 +177,37 @@ ylim <- c(0, max(sapply(densidades, function(d) max(d$y))))
 ```
 A continuación se muestran los gráficos correspondientes a cada Kernel. 
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 biweight <- crear_grafico_kernel(densidades[[1]], 
                                  "Densidad de Salarios con Kernel Biweight", "blue")
 print(biweight)
 ```
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 gaussian <- crear_grafico_kernel(densidades[[2]], 
                                  "Densidad de Salarios con Kernel Gaussiano", "red")
 print(gaussian)
 ```
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 epanechnikov <- crear_grafico_kernel(densidades[[3]], 
                                      "Densidad de Salarios con Kernel Epanechnikov","green")
 print(epanechnikov)
 ```
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 cosine <- crear_grafico_kernel(densidades[[4]], 
                                "Densidad de Salarios con Kernel Coseno", "purple")
 print(cosine)
 ```
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 rectangular <- crear_grafico_kernel(densidades[[5]], 
                                     "Densidad de Salarios con Kernel Rectangular", "orange")
 print(rectangular)
 ```
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 triangular <- crear_grafico_kernel(densidades[[6]], 
                                    "Densidad de Salarios con Kernel Triangular", "turquoise")
 print(triangular)
@@ -217,7 +217,7 @@ print(triangular)
 
 Para este punto se toma el histograma del punto 1, pero se le hace un ajuste para que no coloque la frecuencia en el eje y si no la densidad puesto que, es lo que interesa en este caso y hace que se logre ajustar con las curvas de densidad por kernel graficadas anteriormente. 
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 hist_salarios_densidad <- ggplot(BD, aes(x = Salario, y = after_stat(density))) +
   geom_histogram(fill = "lightblue", color = "black", alpha = 0.7) +
   labs(title = "Histograma y Densidades de Salarios", x = "Salario", y = "Densidad") + 
