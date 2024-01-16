@@ -121,6 +121,127 @@ t.test(salarios_hombres, salarios_mujeres)
 
 Como se indica, el p-valor de la prueba es menor a 2.2e-16, esto implica que la hipótesis nula es rechazada. Por ende, se acepta con un nivel de confianza del 95% que existe diferencias entre los salarios promedios de hombres y mujeres. Por tanto, se obtiene la misma conclusión que el inciso anterior.
 
+# Parte II
+
+**Utilizando la variable U.Salarios sin filtrar por Sexo, construya:**
+**1. El histograma de los salarios.**
+Antes de realizar el histograma se deciden eliminar los outliers más distantes para que esto no afecte a la hora de graficar. Los eliminados son aquellos salarios superiores a los 10 millones de colones, esto debido a que son valores muy altos que se alejan de manera muy significativa del promedio. En total fueron eliminadas dos observaciones. 
+
+```{r}
+BD <- BD[BD$Salario <= 10000000, ]
+```
+
+Después de tener la base de datos adecuada, se relaiza el histograma de los salarios. 
+
+```{r}
+#Histograma de los salarios 
+hist_salarios <- ggplot(BD, aes(x = Salario)) +
+  geom_histogram(fill = "lightblue", color = "black", alpha = 0.7) +
+  labs(title = "Histograma de Salarios", x = "Salario", y = "Frecuencia") + 
+  scale_x_continuous(labels = scales::comma_format()) +
+  scale_y_continuous(labels = scales::comma_format()) +
+  theme_minimal()
+print(hist_salarios)
+```
+
+**2.La densidad de los salarios por kernel (no paramétrica) usando como kernel:**
+**a.Biweigth**
+**b.Normal (gaussiana)**
+**c.Epanechnikov**
+**d.Coseno**
+**e.Uniforme (rectangular)**
+**f.Triangular**
+**Para todas use como bw igual al cross-validation insesgado**
+
+Para mayor facilidad se decidió hacer una función que creara cada gráfico por medio de la función predetermida density. Además, se ajustan algunos detalles del gráfico para que sea más legible.
+
+```{r}
+Kernels <- c("biweight", "gaussian", "epanechnikov", "cosine", "rectangular", "triangular")
+
+densidades <- lapply(Kernels, function(kernel) {
+  density(BD$Salario, kernel = kernel, bw = "ucv")
+})
+
+crear_grafico_kernel <- function(densidad, titulo, col) {
+  ggplot(data.frame(x = densidad$x, y = densidad$y), aes(x = x, y = y)) +
+    geom_line(color = col, size = 1) +
+    labs(title = titulo, y = "Densidad", x = "Salario") +
+    scale_x_continuous(labels = scales::comma_format()) +
+    scale_y_continuous(labels = scales::comma_format()) +
+    theme_minimal()
+}
+
+# Límites de los ejes y cuadrícula para todos los gráficos
+xlim <- c(0, max(BD$Salario))
+ylim <- c(0, max(sapply(densidades, function(d) max(d$y))))
+```
+A continuación se muestran los gráficos correspondientes a cada Kernel. 
+
+```{r}
+biweight <- crear_grafico_kernel(densidades[[1]], 
+                                 "Densidad de Salarios con Kernel Biweight", "blue")
+print(biweight)
+```
+
+```{r}
+gaussian <- crear_grafico_kernel(densidades[[2]], 
+                                 "Densidad de Salarios con Kernel Gaussiano", "red")
+print(gaussian)
+```
+
+```{r}
+epanechnikov <- crear_grafico_kernel(densidades[[3]], 
+                                     "Densidad de Salarios con Kernel Epanechnikov","green")
+print(epanechnikov)
+```
+
+```{r}
+cosine <- crear_grafico_kernel(densidades[[4]], 
+                               "Densidad de Salarios con Kernel Coseno", "purple")
+print(cosine)
+```
+
+```{r}
+rectangular <- crear_grafico_kernel(densidades[[5]], 
+                                    "Densidad de Salarios con Kernel Rectangular", "orange")
+print(rectangular)
+```
+
+```{r}
+triangular <- crear_grafico_kernel(densidades[[6]], 
+                                   "Densidad de Salarios con Kernel Triangular", "turquoise")
+print(triangular)
+```
+
+**3.En un solo gráfico muestre los resultados de las densidades con el histograma.**
+
+Para este punto se toma el histograma del punto 1, pero se le hace un ajuste para que no coloque la frecuencia en el eje y si no la densidad puesto que, es lo que interesa en este caso y hace que se logre ajustar con las curvas de densidad por kernel graficadas anteriormente. 
+
+```{r}
+hist_salarios_densidad <- ggplot(BD, aes(x = Salario, y = after_stat(density))) +
+  geom_histogram(fill = "lightblue", color = "black", alpha = 0.7) +
+  labs(title = "Histograma y Densidades de Salarios", x = "Salario", y = "Densidad") + 
+  scale_x_continuous(labels = scales::comma_format()) +
+  scale_y_continuous(labels = scales::comma_format()) +
+  theme_minimal()
+
+juntos <- hist_salarios_densidad +
+  geom_line(data = data.frame(x = densidades[[1]]$x, y = densidades[[1]]$y), 
+            aes(x = x, y = y), color = "blue", size = 1) +
+  geom_line(data = data.frame(x = densidades[[2]]$x, y = densidades[[2]]$y), 
+            aes(x = x, y = y), color = "red", size = 1) +
+  geom_line(data = data.frame(x = densidades[[3]]$x, y = densidades[[3]]$y), 
+            aes(x = x, y = y), color = "green", size = 1) +
+  geom_line(data = data.frame(x = densidades[[4]]$x, y = densidades[[4]]$y), 
+            aes(x = x, y = y), color = "purple", size = 1) +
+  geom_line(data = data.frame(x = densidades[[5]]$x, y = densidades[[5]]$y), 
+            aes(x = x, y = y), color = "orange", size = 1) +
+  geom_line(data = data.frame(x = densidades[[6]]$x, y = densidades[[6]]$y), 
+            aes(x = x, y = y), color = "turquoise", size = 1)
+print(juntos)
+```
+
+
 # Parte III
 
 **1. Explique en que consiste el criterio de información de Akaike (AIC) y cuál es el criterio de selección entre dos modelos.**
