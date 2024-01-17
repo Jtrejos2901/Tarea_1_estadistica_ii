@@ -268,9 +268,27 @@ De acuerdo al resultado proporcionado, la densidad paramétrica que más se ajus
 
 Empleando la función sugerida se obtiene lo siguiente:
 
-```{r}
-#fit.cont(salarios)
+```{r, echo=TRUE, eval=FALSE}
+fit.cont(salarios)
 ```
+
+                 logL        AIC        BIC Chisq(value) Chisq(p) AD(value)    H(AD) KS(value)
+Cauchy    -1579406.45 3158816.91 3158836.05     64966.97        0   2262.66 rejected      0.12
+Uniform          NULL       NULL       NULL          Inf        0       Inf     NULL      0.08
+Lognormal -1559929.72 3119863.45 3119882.59     35838.95        0   1826.63 rejected      0.10
+Weibull   -1552303.26 3104610.52 3104629.67     11129.72        0    458.63 rejected      0.05
+F          -1852800.9  3705605.8 3705624.94   2312033.08        0  47820.62     NULL      0.60
+Student   -1925112.91 3850227.82 3850237.39   4676102.55        0  94832.02     NULL      0.79
+             H(KS)
+Cauchy    rejected
+Uniform   rejected
+Lognormal rejected
+Weibull   rejected
+F         rejected
+Student   rejected
+
+
+
 Usando el criterio AIC la densidad Weibull es el que presenta menor valor de esta medida, por ende, se toma como la mejor distribución para los salarios.
 
 
