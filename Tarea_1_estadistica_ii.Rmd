@@ -88,6 +88,8 @@ knitr::kable(resumen, format = "markdown")
 
 ```
 
+Se puede observar en el cuadro anterior que tanto para hombres como para mujeres el mínimo de cuotas es 1 y el máximo solo difiere en 2 cuotas entre ambos sexos mientras que, la media es mayor para las mujeres. Ahora analizando la variable salario es menor el mínimo de las mujeres que el de los hombres y el mismo comportamiento sucede con el máximo, el cual difiere de gran manera entre un sexo y otro. Además, en promedio los salarios de hombres y mujeres son bastante similares, sin embargo, el salario del sexo masculino sigue por encima del femenino. Por último, se cumple que los salarios de los hombres y las cuotas de las mujeres son los que tienen una mayor variabilidad con respecto a su sexo opuesto. 
+
 **2. Gráfico boxplot de los salarios según sexo.**
 
 ```{r, warning=FALSE, message=FALSE}
@@ -124,7 +126,10 @@ Como se indica, el p-valor de la prueba es menor a 2.2e-16, esto implica que la 
 # Parte II
 
 **Utilizando la variable U.Salarios sin filtrar por Sexo, construya:**
+
+
 **1. El histograma de los salarios.**
+
 Antes de realizar el histograma se deciden eliminar los outliers más distantes para que esto no afecte a la hora de graficar. Los eliminados son aquellos salarios superiores a los 10 millones de colones, esto debido a que son valores muy altos que se alejan de manera muy significativa del promedio. En total fueron eliminadas dos observaciones. 
 
 ```{r}
@@ -145,12 +150,26 @@ print(hist_salarios)
 ```
 
 **2.La densidad de los salarios por kernel (no paramétrica) usando como kernel:**
+
+
 **a.Biweigth**
+
+
 **b.Normal (gaussiana)**
+
+
 **c.Epanechnikov**
+
+
 **d.Coseno**
+
+
 **e.Uniforme (rectangular)**
+
+
 **f.Triangular**
+
+
 **Para todas use como bw igual al cross-validation insesgado**
 
 Para mayor facilidad se decidió hacer una función que creara cada gráfico por medio de la función predetermida density. Además, se ajustan algunos detalles del gráfico para que sea más legible.
@@ -252,7 +271,7 @@ El criterio de información de Akaike (AIC) es una medida de la calidad de un mo
 
 A continuación, se presenta la implementación del criterio AIC mediante la función model_select del paquete univariateML 
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 #-----Análisis AIC-----|
 
 #Comparación densidades paramétricas por el criterio AIC
@@ -268,7 +287,7 @@ De acuerdo al resultado proporcionado, la densidad paramétrica que más se ajus
 
 Empleando la función sugerida se obtiene lo siguiente:
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 #fit.cont(salarios)
 ```
 Usando el criterio AIC la densidad Weibull es el que presenta menor valor de esta medida, por ende, se toma como la mejor distribución para los salarios.
@@ -279,7 +298,7 @@ Usando el criterio AIC la densidad Weibull es el que presenta menor valor de est
 Los resultados obtenidos en los puntos 2 y 3 son distintos, con el primer método se obtuvo que la densidad que mejor se aproxima es la t-Student. Sin embargo, con la segunda forma se tiene que la mejor es la densidad de Weibull. Para determinar cúal
 de estas distribuciones se ajusta mejor, se procede a analizar los siguientes gráficos comparativos:
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 #----Elegir distribución---|
 
 #Comparación gráfica entre la distribución weibull y la t-student
@@ -308,7 +327,7 @@ Por tanto, si consideramos los primeros dos criterios, la distribución Weibull
 se ajusta mejor a los datos de los salarios en estudio. 
 
 También, la función fitdist brinda información sobre la medida AIC:
-```{r}
+```{r, warning=FALSE, message=FALSE}
 print(summary(fw))
 print(summary(ft))
 ```
@@ -319,7 +338,7 @@ Donde Weibull presenta el menor valor AIC. Con lo cual, se confirma que la distr
 **5.Intervalo de confianza para la media y la desviación estándar usando la función bootstrapml**
 
 Para obtener los intervalos de confianza se ejecuta el siguiente código:
-```{r}
+```{r, warning=FALSE, message=FALSE}
 densidad_salario <- mlweibull(salarios)
 
 #intervalo confianza media
