@@ -6,7 +6,10 @@ author:
   - "Tábata Picado Carmona C05961"
   - "Jose Pablo Trejos Conejo C07862"
 
-output: pdf_document
+output:
+  pdf_document:
+    latex_engine: pdflatex
+    keep_tex: false
 ---
 
 ```{r setup, include=FALSE}
@@ -48,9 +51,14 @@ resumen<- BD %>% group_by(Sexo) %>% summarise_at(vars(Cuotas,Salario),
                                                           Media = mean,
                                                           Máximo = max,
                                                           Varianza = var))
-
-knitr::kable(resumen, format = "markdown")
-
+knitr::kable(
+  resumen,
+  format = "latex",
+  booktabs = TRUE,
+  align = 'c',
+  rotate.colnames = TRUE,
+  col.width = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+)
 ```
 
 Se puede observar en el cuadro anterior que tanto para hombres como para mujeres el mínimo de cuotas es 1 y el máximo solo difiere en 2 cuotas entre ambos sexos mientras que, la media es mayor para las mujeres. Ahora analizando la variable salario, es menor el mínimo de las mujeres que el de los hombres y el mismo comportamiento sucede con el máximo, el cual difiere de gran manera entre un sexo y otro. Además, en promedio los salarios de hombres y mujeres son bastante similares, sin embargo, el salario del sexo masculino sigue por encima del femenino. Por último, se cumple que los salarios de los hombres y las cuotas de las mujeres son los que tienen una mayor variabilidad con respecto a su sexo opuesto.
@@ -251,16 +259,33 @@ Empleando la función sugerida se obtiene lo siguiente:
 fit.cont(salarios)
 ```
 
-| <!-- -->  | logL        | AIC        | BIC        | Chisq(value) | Chisq(p) | AD(value) | H(AD)    | KS(value) | H(KS)    |
-|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|
-| Cauchy    | -1579406.45 | 3158816.91 | 3158836.05 | 64966.97     | 0        | 2262.66   | rejected | 0.12      | rejected |
-| Uniform   | NULL        | NULL       | NULL       | Inf          | 0        | Inf       | NULL     | 0.08      | rejected |
-| Lognormal | -1559929.72 | 3119863.45 | 3119882.59 | 35838.95     | 0        | 1826.63   | rejected | 0.10      | rejected |
-| Weibull   | -1552303.26 | 3104610.52 | 3104629.67 | 11129.72     | 0        | 458.63    | rejected | 0.05      | rejected |
-| F         | -1852800.9  | 3705605.8  | 3705624.94 | 2312033.08   | 0        | 47820.62  | NULL     | 0.60      | rejected |
-| Student   | -1925112.91 | 3850227.82 | 3850237.39 | 4676102.55   | 0        | 94832.02  | NULL     | 0.79      | rejected |
+```{r}
+data <- data.frame(
+  Distribucion = c("Cauchy", "Uniform", "Lognormal", "Weibull", "F", "Student"),
+  logL = c(-1579406.45, NA, -1559929.72, -1552303.26, -1852800.9, -1925112.91),
+  AIC = c(3158816.91, NA, 3119863.45, 3104610.52, 3705605.8, 3850227.82),
+  BIC = c(3158836.05, NA, 3119882.59, 3104629.67, 3705624.94, 3850237.39),
+  Chisq_value = c(64966.97, Inf, 35838.95, 11129.72, 2312033.08, 4676102.55),
+  Chisq_p = c(0, 0, 0, 0, 0, 0),
+  AD_value = c(2262.66, Inf, 1826.63, 458.63, 47820.62, 94832.02),
+  H_AD = c("rejected", NA, "rejected", "rejected", NA, NA),
+  KS_value = c(0.12, 0.08, 0.10, 0.05, 0.60, 0.79),
+  H_KS = c("rejected", "rejected", "rejected", "rejected", "rejected", "rejected")
+)
 
-Usando el criterio AIC la densidad Weibull es el que presenta menor valor de esta medida, por ende, se toma como la mejor distribución para los salarios.
+knitr::kable(
+  data,
+  format = "latex",
+  booktabs = TRUE,
+  align = 'c',
+  rotate.colnames = TRUE,
+  longtable = TRUE,
+  col.width = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+)
+
+```
+
+Usando el criterio AIC, la densidad Weibull es el que presenta menor valor de esta medida. Por ende, se toma como la mejor distribución para los salarios.
 
 **4.Comente y compare los resultados de los puntos 2 y 3, seleccione una distribución**
 
