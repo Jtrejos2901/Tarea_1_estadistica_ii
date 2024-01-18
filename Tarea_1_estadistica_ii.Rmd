@@ -245,18 +245,20 @@ hist_salarios_densidad <- ggplot(BD, aes(x = Salario, y = after_stat(density))) 
   theme_minimal()
 
 juntos <- hist_salarios_densidad +
-  geom_line(data = data.frame(x = densidades[[1]]$x, y = densidades[[1]]$y), 
-            aes(x = x, y = y), color = "blue", size = 1) +
-  geom_line(data = data.frame(x = densidades[[2]]$x, y = densidades[[2]]$y), 
-            aes(x = x, y = y), color = "red", size = 1) +
-  geom_line(data = data.frame(x = densidades[[3]]$x, y = densidades[[3]]$y), 
-            aes(x = x, y = y), color = "green", size = 1) +
-  geom_line(data = data.frame(x = densidades[[4]]$x, y = densidades[[4]]$y), 
-            aes(x = x, y = y), color = "purple", size = 1) +
-  geom_line(data = data.frame(x = densidades[[5]]$x, y = densidades[[5]]$y), 
-            aes(x = x, y = y), color = "orange", size = 1) +
-  geom_line(data = data.frame(x = densidades[[6]]$x, y = densidades[[6]]$y), 
-            aes(x = x, y = y), color = "turquoise", size = 1)
+  geom_line(data = data.frame(x = densidades[[1]]$x, y = densidades[[1]]$y, color = Kernels[1]), 
+            aes(x = x, y = y, color = Kernels[1]), size = 1) +
+  geom_line(data = data.frame(x = densidades[[2]]$x, y = densidades[[2]]$y, color = Kernels[2]), 
+            aes(x = x, y = y, color = Kernels[2]), size = 1) +
+  geom_line(data = data.frame(x = densidades[[3]]$x, y = densidades[[3]]$y, color = Kernels[3]), 
+            aes(x = x, y = y, color = Kernels[3]), size = 1) +
+  geom_line(data = data.frame(x = densidades[[4]]$x, y = densidades[[4]]$y, color = Kernels[4]), 
+            aes(x = x, y = y, color = Kernels[4]), size = 1) +
+  geom_line(data = data.frame(x = densidades[[5]]$x, y = densidades[[5]]$y, color = Kernels[5]), 
+            aes(x = x, y = y, color = Kernels[5]), size = 1) +
+  geom_line(data = data.frame(x = densidades[[6]]$x, y = densidades[[6]]$y, color = Kernels[6]), 
+            aes(x = x, y = y, color = Kernels[6]), size = 1) +
+  scale_color_manual(values = c("blue", "red", "green", "purple", "orange", "turquoise"), labels = Kernels) + labs(color = "Kernel")
+
 print(juntos)
 ```
 
