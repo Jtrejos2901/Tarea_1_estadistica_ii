@@ -131,5 +131,6 @@ media <- mean(resultado_boot$t0)
 
 
 #------Histograma bootstrap----|
-plot(resultado_boot)
+hist(resultado_boot$t)
+
 
