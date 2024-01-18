@@ -6,12 +6,7 @@ author:
   - "Tábata Picado Carmona C05961"
   - "Jose Pablo Trejos Conejo C07862"
 
-output:
-  rmdformats::robobook:
-        code_folding: show
-  html_document:
-    toc: TRUE
-    toc_depth: 2
+output: pdf_document
 ---
 
 ```{=html}
@@ -55,13 +50,10 @@ knitr::opts_chunk$set(echo = TRUE)
 
 **1.Análisis descriptivo de las variables Cuotas y Salarios con respecto a la variable Sexo.**
 
-Primeramente, se cargan las librerías y la base de datos.
+Primeramente, se cargan las librerías , la base de datos y se fija una semilla para la reproducibilidad de los resultados.
 
 ```{r, warning=FALSE, message=FALSE}
-library(readr)
 library(tidyverse)
-library(dplyr)
-library(ggplot2)
 library(plotly)
 library(DT)
 library(univariateML)
@@ -70,9 +62,13 @@ library(rriskDistributions) #encuentra que distribuciónn de probabilidades es l
                             #que ajusta mejor con una colección de datos.
 library(fitdistrplus)
 library(metRology)
+library(ks)
+library(boot)
 
 BD <- read_csv2("BaseSalarios.csv")[-6]
 BD <- BD %>% rename("Salario" = "U. Salario", "Cuotas" = "Coutas" )
+
+set.seed(292625)
 ```
 
 Seguidamente, se realiza el resumen de los datos según el sexo. Se calcula la media, máximo, mínimo y varianza de las cuotas y salarios.
@@ -88,7 +84,7 @@ knitr::kable(resumen, format = "markdown")
 
 ```
 
-Se puede observar en el cuadro anterior que tanto para hombres como para mujeres el mínimo de cuotas es 1 y el máximo solo difiere en 2 cuotas entre ambos sexos mientras que, la media es mayor para las mujeres. Ahora analizando la variable salario es menor el mínimo de las mujeres que el de los hombres y el mismo comportamiento sucede con el máximo, el cual difiere de gran manera entre un sexo y otro. Además, en promedio los salarios de hombres y mujeres son bastante similares, sin embargo, el salario del sexo masculino sigue por encima del femenino. Por último, se cumple que los salarios de los hombres y las cuotas de las mujeres son los que tienen una mayor variabilidad con respecto a su sexo opuesto. 
+Se puede observar en el cuadro anterior que tanto para hombres como para mujeres el mínimo de cuotas es 1 y el máximo solo difiere en 2 cuotas entre ambos sexos mientras que, la media es mayor para las mujeres. Ahora analizando la variable salario, es menor el mínimo de las mujeres que el de los hombres y el mismo comportamiento sucede con el máximo, el cual difiere de gran manera entre un sexo y otro. Además, en promedio los salarios de hombres y mujeres son bastante similares, sin embargo, el salario del sexo masculino sigue por encima del femenino. Por último, se cumple que los salarios de los hombres y las cuotas de las mujeres son los que tienen una mayor variabilidad con respecto a su sexo opuesto.
 
 **2. Gráfico boxplot de los salarios según sexo.**
 
@@ -107,7 +103,7 @@ print(boxplot_salarios)
 
 **3.¿Qué puede concluir con respecto a los salarios y sexo? ¿Existe alguna diferencia entre los sexos a nivel salarial?**
 
-De acuerdo con el gráfico de caja de bigotes, se muestra que los hombres presentan un salario central superior al de las mujeres. También, para el caso de las mujeres, la mediana está más cercana a la parte superior de la caja lo que indica un sesgo a la izquierda, lo que significa que la media es inferior a la mediana. En cuanto a los hombres, prácticamente no se muestra sesgo, ya que, la mediana se muestra muy centrada, lo que indica una mayor simetría. Además, es posible ver que el salario máximo de los hombres es significativamente superior al de las mujeres estando por encima de los diez millones de colones, en cambio, el mayor salario para una mujer es de 7,290,150. Para los hombres, la varianza se muestra casi el doble que el de las mujeres, lo cual, se puede explicar mediante lo descrito anteriormente. Esto indica que existen diferencias según el sexo en cuanto a salarios.
+De acuerdo con el gráfico de caja de bigotes, se muestra que los hombres presentan un salario central superior al de las mujeres. También, para el caso de las mujeres, la mediana está más cercana a la parte superior de la caja lo que indica un sesgo a la izquierda, lo que significa que la media es inferior a la mediana. En cuanto a los hombres, prácticamente no se muestra sesgo, ya que, la mediana se muestra muy centrada lo que indica una mayor simetría. Además, es posible ver que el salario máximo de los hombres es significativamente superior al de las mujeres estando por encima de los diez millones de colones, en cambio, el mayor salario para una mujer es de 7 290 150. Para los hombres, la varianza se muestra casi el doble que el de las mujeres, lo cual, se puede explicar mediante lo descrito anteriormente. Esto indica que existen diferencias según el sexo en cuanto a salarios.
 
 **4.Compare su conclusión con una prueba de hipótesis sobre las medias de las categorías de sexo.**
 
@@ -127,16 +123,15 @@ Como se indica, el p-valor de la prueba es menor a 2.2e-16, esto implica que la 
 
 **Utilizando la variable U.Salarios sin filtrar por Sexo, construya:**
 
-
 **1. El histograma de los salarios.**
 
-Antes de realizar el histograma se deciden eliminar los outliers más distantes para que esto no afecte a la hora de graficar. Los eliminados son aquellos salarios superiores a los 10 millones de colones, esto debido a que son valores muy altos que se alejan de manera muy significativa del promedio. En total fueron eliminadas dos observaciones. 
+Antes de realizar el histograma se deciden eliminar los outliers más distantes para que esto no afecte a la hora de graficar. Los eliminados son aquellos salarios superiores a los 10 millones de colones, esto debido a que son valores muy altos que se alejan de manera muy significativa del promedio. En total fueron eliminadas dos observaciones.
 
 ```{r}
 BD <- BD[BD$Salario <= 10000000, ]
 ```
 
-Después de tener la base de datos adecuada, se realiza el histograma de los salarios. 
+Después de tener la base de datos adecuada, se realiza el histograma de los salarios.
 
 ```{r,  warning=FALSE, message=FALSE}
 #Histograma de los salarios 
@@ -151,28 +146,21 @@ print(hist_salarios)
 
 **2.La densidad de los salarios por kernel (no paramétrica) usando como kernel:**
 
-
 **a.Biweigth**
-
 
 **b.Normal (gaussiana)**
 
-
 **c.Epanechnikov**
-
 
 **d.Coseno**
 
-
 **e.Uniforme (rectangular)**
-
 
 **f.Triangular**
 
-
 **Para todas use como bw igual al cross-validation insesgado**
 
-Para mayor facilidad se decidió hacer una función que creara cada gráfico por medio de la función predetermida density. Además, se ajustan algunos detalles del gráfico para que sea más legible.
+Para mayor facilidad se decidió hacer una función que creara cada gráfico por medio de la función predeterminada density. Además, se ajustan algunos detalles del gráfico para que sea más legible.
 
 ```{r, warning=FALSE, message=FALSE}
 Kernels <- c("biweight", "gaussian", "epanechnikov", "cosine", "rectangular", "triangular")
@@ -194,7 +182,8 @@ crear_grafico_kernel <- function(densidad, titulo, col) {
 xlim <- c(0, max(BD$Salario))
 ylim <- c(0, max(sapply(densidades, function(d) max(d$y))))
 ```
-A continuación se muestran los gráficos correspondientes a cada Kernel. 
+
+A continuación se muestran los gráficos correspondientes a cada Kernel.
 
 ```{r, warning=FALSE, message=FALSE}
 biweight <- crear_grafico_kernel(densidades[[1]], 
@@ -234,7 +223,7 @@ print(triangular)
 
 **3.En un solo gráfico muestre los resultados de las densidades con el histograma.**
 
-Para este punto se toma el histograma del punto 1, pero se le hace un ajuste para que no coloque la frecuencia en el eje y si no la densidad puesto que, es lo que interesa en este caso y hace que se logre ajustar con las curvas de densidad por kernel graficadas anteriormente. 
+Para este punto se toma el histograma del punto 1, pero se le hace un ajuste para que no coloque la frecuencia en el eje y si no la densidad puesto que, es lo que interesa en este caso y hace que se logre ajustar con las curvas de densidad por kernel graficadas anteriormente.
 
 ```{r, warning=FALSE, message=FALSE}
 hist_salarios_densidad <- ggplot(BD, aes(x = Salario, y = after_stat(density))) +
@@ -260,16 +249,15 @@ juntos <- hist_salarios_densidad +
 print(juntos)
 ```
 
-
 # Parte III
 
 **1. Explique en que consiste el criterio de información de Akaike (AIC) y cuál es el criterio de selección entre dos modelos.**
 
-El criterio de información de Akaike (AIC) es una medida de la calidad de un modelo dentro de un conjunto de modelos. Brinda información sobre la complejidad de un modelo y su exactitud, pues describe el sesgo y la varianza presentes en el modelo estadístico en estudio. Con el AIC, se permite determinar cuál modelo es el más apropiado entre los modelos estadísticos propuestos. Como criterio de selección, se considera como mejor modelo aquel cuyo valor de AIC es menor. Se debe tener presente que el AIC no es prueba de hipótesis, por lo que no indica si un modelo es de calidad, es decir, todos los modelos pueden ser erróneos y el AIC solo indica entre ellos cúal es el que mejor se ajusta.
+El criterio de información de Akaike (AIC) es una medida de la calidad de un modelo dentro de un conjunto de modelos. Brinda información sobre la complejidad de un modelo y su exactitud, pues describe el sesgo y la varianza presentes en el modelo estadístico en estudio. Con el AIC se permite determinar cuál modelo es el más apropiado entre los modelos estadísticos propuestos. Como criterio de selección, se considera como mejor modelo aquel cuyo valor de AIC es menor. Se debe tener presente que el AIC no es prueba de hipótesis, por lo que no indica si un modelo es de calidad, es decir, todos los modelos pueden ser erróneos y el AIC solo indica entre ellos cúal es el que mejor se ajusta.
 
-**2. Análisis AIC de los salarios sin filtrar por Sexo para determinar que densidad paramétrica es la que más se le aproxima. **
+**2. Análisis AIC de los salarios sin filtrar por Sexo para determinar que densidad paramétrica es la que más se le aproxima.**
 
-A continuación, se presenta la implementación del criterio AIC mediante la función model_select del paquete univariateML 
+A continuación, se presenta la implementación del criterio AIC mediante la función model_select del paquete univariateML
 
 ```{r, warning=FALSE, message=FALSE}
 #-----Análisis AIC-----|
@@ -291,25 +279,20 @@ Empleando la función sugerida se obtiene lo siguiente:
 fit.cont(salarios)
 ```
 
-|<!-- -->|logL       |AIC       |BIC       |Chisq(value)|Chisq(p)| AD(value)|   H(AD)| KS(value)|   H(KS)|
-|--------|-----------|----------|----------|------------|--------|----------|--------|----------|--------|
-Cauchy   |-1579406.45|3158816.91|3158836.05|    64966.97|       0|   2262.66|rejected|0.12      |rejected|
-Uniform  |       NULL|     NULL |    NULL  |      Inf   |       0|   Inf    |NULL    |0.08      |rejected|
-Lognormal|-1559929.72|3119863.45|3119882.59|    35838.95|       0|   1826.63|rejected|0.10      |rejected|
-Weibull  |-1552303.26|3104610.52|3104629.67|    11129.72|       0|    458.63|rejected|0.05      |rejected|
-F        | -1852800.9|3705605.8 |3705624.94|  2312033.08|       0|  47820.62|NULL    |0.60      |rejected|
-Student  |-1925112.91|3850227.82|3850237.39|  4676102.55|       0|  94832.02|NULL    |0.79      |rejected|
-
-
-
+| <!-- -->  | logL        | AIC        | BIC        | Chisq(value) | Chisq(p) | AD(value) | H(AD)    | KS(value) | H(KS)    |
+|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|
+| Cauchy    | -1579406.45 | 3158816.91 | 3158836.05 | 64966.97     | 0        | 2262.66   | rejected | 0.12      | rejected |
+| Uniform   | NULL        | NULL       | NULL       | Inf          | 0        | Inf       | NULL     | 0.08      | rejected |
+| Lognormal | -1559929.72 | 3119863.45 | 3119882.59 | 35838.95     | 0        | 1826.63   | rejected | 0.10      | rejected |
+| Weibull   | -1552303.26 | 3104610.52 | 3104629.67 | 11129.72     | 0        | 458.63    | rejected | 0.05      | rejected |
+| F         | -1852800.9  | 3705605.8  | 3705624.94 | 2312033.08   | 0        | 47820.62  | NULL     | 0.60      | rejected |
+| Student   | -1925112.91 | 3850227.82 | 3850237.39 | 4676102.55   | 0        | 94832.02  | NULL     | 0.79      | rejected |
 
 Usando el criterio AIC la densidad Weibull es el que presenta menor valor de esta medida, por ende, se toma como la mejor distribución para los salarios.
 
-
 **4.Comente y compare los resultados de los puntos 2 y 3, seleccione una distribución**
 
-Los resultados obtenidos en los puntos 2 y 3 son distintos, con el primer método se obtuvo que la densidad que mejor se aproxima es la t-Student. Sin embargo, con la segunda forma se tiene que la mejor es la densidad de Weibull. Para determinar cúal
-de estas distribuciones se ajusta mejor, se procede a analizar los siguientes gráficos comparativos:
+Los resultados obtenidos en los puntos 2 y 3 son distintos, con el primer método se obtuvo que la densidad que mejor se aproxima es la t-Student. Sin embargo, con la segunda forma se tiene que la mejor es la densidad de Weibull. Para determinar cúal de estas distribuciones se ajusta mejor, se procede a analizar los siguientes gráficos comparativos:
 
 ```{r, warning=FALSE, message=FALSE}
 #----Elegir distribución---|
@@ -328,29 +311,27 @@ cdfcomp(list(fw, ft), legendtext = leyenda)
 ppcomp(list(fw, ft), legendtext = leyenda)
 ```
 
-A partir del gráfico del histograma con las densidades teóricas, es posible observar
-que la densidad representada por la línea roja es la que mejor se ajusta al histograma de los datos de los salarios. Entonces, para este caso, la distribución Weibull es la que mejor se aproxima.
+A partir del gráfico del histograma con las densidades teóricas, es posible observar que la densidad representada por la línea roja es la que mejor se ajusta al histograma de los datos de los salarios. Entonces, para este caso, la distribución Weibull es la que mejor se aproxima.
 
-Con el Q-Q plot se permiten ver las diferencias entre la distribución teórica de
-los datos y la empírica. La distribución t-student y weibull se muestran similarmente ajustados aproximadamente entre los cuántiles teóricos 0 y 2e+06. Pero, la distribución t-student, representado por el gráfico verde, se encuentra más alejado de la línea negra al inicio y al final de esta. Por ende, la distribución Weibull se ajusta mejor.
+Con el Q-Q plot se permiten ver las diferencias entre la distribución teórica de los datos y la empírica. La distribución t-student y weibull se muestran similarmente ajustados aproximadamente entre los cuántiles teóricos 0 y 2e+06. Pero, la distribución t-student representado por el gráfico verde, se encuentra más alejado de la línea negra al inicio y al final de esta. Por ende, la distribución Weibull se ajusta mejor.
 
 Para el gráfico de la distribución acumulada teórica y la empírica, las diferencias en los ajustes entre ambas distribuciones es menos evidente. Lo mismo para el p-p plot, por lo que, a partir de estos gráficos no se puede deducir cuál es el mejor.
 
-Por tanto, si consideramos los primeros dos criterios, la distribución Weibull 
-se ajusta mejor a los datos de los salarios en estudio. 
+Por tanto, si consideramos los primeros dos criterios, la distribución Weibull se ajusta mejor a los datos de los salarios en estudio.
 
 También, la función fitdist brinda información sobre la medida AIC:
+
 ```{r, warning=FALSE, message=FALSE}
 print(summary(fw))
 print(summary(ft))
 ```
 
-Donde Weibull presenta el menor valor AIC. Con lo cual, se confirma que la distribución Weibull es el que mejor se ajusta.
-
+Donde Weibull presenta el menor valor AIC. Con lo cual, se confirma que la distribución Weibull es la que mejor se ajusta.
 
 **5.Intervalo de confianza para la media y la desviación estándar usando la función bootstrapml**
 
 Para obtener los intervalos de confianza se ejecuta el siguiente código:
+
 ```{r, warning=FALSE, message=FALSE}
 densidad_salario <- mlweibull(salarios)
 
@@ -361,21 +342,22 @@ bootstrapml(densidad_salario, map = function(x) x[2]*gamma(1+(1/x[1])))
 bootstrapml(densidad_salario, map = function(x) sqrt(x[2]^2*(gamma(1+2/x[1])-(gamma(1+1/x[1]))^2)))
 ```
 
-Del cual, se obtiene que el intervalo de confianza al 95% para la media es [1077486, 1084694] y para la desviación estándar es [592235.2, 597623.0].
+Del cual, se obtiene que el intervalo de confianza al 97.5% para la media es [1077264, 1084414] y para la desviación estándar es [592271.6, 597561.0].
 
 # Parte IV
+
 **1.Del paquete ks de R, describa brevemente que realiza la función kde y realice como ejemplo un gráfico de la densidad con U. Salarios sin filtrar por sexo.**
 
-Inicialmente el paquete _ks_ de R es un paquete orientado a suavizar datos univariados o multivariados mediante kernels. Dentro de este paquete se encuentra la función _Kernel density estimate (kde)_ la cual estima la función de densidad de probabilidad para datos de 1 a 6 dimensiones de forma no paramétrica. 
+Inicialmente el paquete *ks* de R es un paquete orientado a suavizar datos univariados o multivariados mediante kernels. Dentro de este paquete se encuentra la función *Kernel density estimate (kde)* la cual estima la función de densidad de probabilidad para datos de 1 a 6 dimensiones de forma no paramétrica.
 
 ```{r}
 KDE <- kde(BD$Salario)
-plot(KDE, main = "Función estimada de densidad de probabilidad", ylab = "", xlab = "")
+plot(KDE, main = "Función estimada de densidad probabilística", ylab = "", xlab = "")
 ```
 
 **2.Del paquete boot de R, describa brevemente la función boot.ci**
 
-Este paquete contiene funciones y bases de datos para bootstrapping del libro _`Bootstrap Methods and Their Application_. La función boot.ci genera 5 tipos diferentes de intervalos de confianza no paramétricos de dos colas iguales: Itervalos de Apriximación normal, intevalos básicos bootstrap, intervalos bootstrap studentnizados, intervalos percentil bootstrap e intervalos ajustados percentil bootstrap, de lo cuales se puede hacer una selección según preferencia.
+Este paquete contiene funciones y bases de datos para bootstrapping del libro *Bootstrap Methods and Their Application*. La función boot.ci genera 5 tipos diferentes de intervalos de confianza no paramétricos de dos colas iguales: Intervalos de Aproximación normal, intervalos básicos bootstrap, intervalos bootstrap studentnizados, intervalos percentil bootstrap e intervalos ajustados percentil bootstrap, de los cuales se puede hacer una selección según preferencia.
 
 ```{r}
 resultado_boot <- boot(data=BD$Salario,
@@ -383,9 +365,9 @@ resultado_boot <- boot(data=BD$Salario,
                 R=1000)
 ```
 
-**3.Realice un Bootstarp de la media de los U. Salarios sin filtrar por sexo, (para esto deben crear una función que contenga índices) utilizando la función boot.**
+**3.Realice un Bootstrap de la media de los U. Salarios sin filtrar por sexo, (para esto deben crear una función que contenga índices) utilizando la función boot.**
 
-__a.Estime la media Bootstrap (ver la variable t) y compárela con la media de los datos originales (ver la variable t0).__
+**a.Estime la media Bootstrap (ver la variable t) y compárela con la media de los datos originales (ver la variable t0).**
 
 ```{r}
 media_real <- resultado_boot$t0
@@ -396,8 +378,7 @@ colnames(medias_y_diff) <- c("Media real", "Media boot", "Diferencia")
 print(medias_y_diff)
 ```
 
-__b.Realice un histograma con los resultados del Bootstrap.__
-Resulta evidente que, aunque existe una diferencia en los resultados, esta no es de gran magnitud, mostrándose así que la media obtenida mediante el método boostrap es una aproximación muy certera para el caso en cuestión.
+**b.Realice un histograma con los resultados del Bootstrap.** Resulta evidente que, aunque existe una diferencia en los resultados, esta no es de gran magnitud, mostrándose así que la media obtenida mediante el método bootstrap es una aproximación muy certera para el caso en cuestión.
 
 ```{r}
 hist(resultado_boot$t, main = "Histograma de medias bootstrap", xlab = "Medias", ylab = "Frecuencia")
