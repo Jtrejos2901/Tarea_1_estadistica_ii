@@ -9,39 +9,6 @@ author:
 output: pdf_document
 ---
 
-```{=html}
-<STYLE TYPE="text/css">
-<!--
-  .r {
-    border: none;
-    border-radius: 0px;
-  }
-  
-  #TOC {
-    font-size: 14pt;
-    color: #ffa07a;
-    margin: 4rem 0 4rem;
-  }
-  
-  a:hover {
-    color: #ffa07a;
-  }
-  
-  a {
-    color: #393d42;
-  }
-  th{
-    font-weight: bold;
-    background-color: #ffa07a;
-  }
-  table { 
-    font-size: 8pt;
-    font-family: Arial; 
-    border-collapse: collapse;
-  }
---->
-</STYLE>
-```
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -53,6 +20,8 @@ knitr::opts_chunk$set(echo = TRUE)
 Primeramente, se cargan las librerías , la base de datos y se fija una semilla para la reproducibilidad de los resultados.
 
 ```{r, warning=FALSE, message=FALSE}
+library(knitr)
+tinytex::install_tinytex(force = TRUE)
 library(tidyverse)
 library(plotly)
 library(DT)
